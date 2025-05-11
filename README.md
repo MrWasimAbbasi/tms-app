@@ -48,7 +48,7 @@ Migrations will also get run into db with seeders.
 
 ---
 
-## 7. **Access the Application**
+## 5. **Access the Application**
 
 The application should now be up and running. To access it:
 
@@ -70,7 +70,7 @@ The application should now be up and running. To access it:
 
 ---
 
-## 8. **Running Tests (Optional)**
+## 6. **Running Tests (Optional)**
 
 If you want to run tests to ensure everything is working correctly:
 
@@ -82,4 +82,3 @@ If you want to run tests to ensure everything is working correctly:
 2. To see coverage please run following command
   ```bash
     php artisan test --coverage
-    ```
