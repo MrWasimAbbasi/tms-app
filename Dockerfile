@@ -19,6 +19,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 COPY . /var/www/html
 
+RUN cd /var/www/html
+
 RUN composer install
 
 RUN chmod -R 777 /var/www/html/storage
