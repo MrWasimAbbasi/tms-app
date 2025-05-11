@@ -10,17 +10,28 @@ services:
             - .:/var/www/html
         depends_on:
             - db
+        networks:
+            - tms_network
 
     db:
         image: mysql:8
         restart: always
+        ports:
+            - "33060:3306"
         environment:
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: tms
+            MYSQL_DATABASE: laravel
             MYSQL_USER: laravel
             MYSQL_PASSWORD: laravel
         volumes:
             - db_data:/var/lib/mysql
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        networks:
+            - tms_network
 
 volumes:
     db_data:
+
+networks:
+    tms_network:
+        driver: bridge
