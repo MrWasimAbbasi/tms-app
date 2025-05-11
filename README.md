@@ -40,35 +40,13 @@ Now that Docker is installed, let's set up the project.
 
 ---
 
-## 4. **Install Composer (Inside the Docker Container)**
+## 4. **Project Up**
 
-Composer is a tool used for managing PHP dependencies. We need to install Composer inside the Docker container.
+Composer will be automatically get installed in app
 
-1. **Enter the Docker container** by running the following command:
-
-    ```bash
-    docker exec -it app bash
-    ```
-
-2. **Install the project dependencies** using Composer:
-
-    ```bash
-    composer install
-    ```
-
-   This might take a couple of minutes to complete.
+Migrations will also get run into db with seeders.
 
 ---
-
-## 5. **Run Database Migrations With Seeders**
-
-Laravel uses migrations to set up the database structure. You need to run the migrations to create the required database tables.
-
-1. Inside the Docker container (if you're not already inside), run the following command:
-
-    ```bash
-    php artisan migrate --seed
-    ```
 
 ## 7. **Access the Application**
 
