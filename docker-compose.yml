@@ -16,7 +16,7 @@ services:
         restart: always
         environment:
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: laravel
+            MYSQL_DATABASE: tms
             MYSQL_USER: laravel
             MYSQL_PASSWORD: laravel
         volumes:
