@@ -33,7 +33,7 @@ Now that Docker is installed, let's set up the project.
 3. **Build and start the Docker containers** by running the following command:
 
     ```bash
-    docker compose up --build -d
+    docker compose up --build --force-recreate -d
     ```
 
 4. After a few minutes, your containers should be up and running.
