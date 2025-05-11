@@ -151,5 +151,207 @@ class TranslationControllerTest extends TestCase
         $this->assertEquals(5, count($response->json('data')));
     }
 
+    public function test_search_translation_model_not_found_exception_handled()
+    {
+        $user = \App\Models\User::factory()->create();
+
+        $response = $this->actingAs($user)->getJson('/api/translations/search?throw_exception=1');
+
+        $response->assertStatus(404)
+            ->assertJson([
+                'message' => 'No query results for model [App\\Models\\Translation] search',
+            ]);
+    }
+
+    public function test_destroy_translation_successfully()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $locale = Locale::factory()->create();
+        $context = Context::factory()->create();
+
+        $translation = Translation::create([
+            'key' => 'delete-key',
+            'content' => 'To be deleted',
+            'locale_id' => $locale->id,
+            'context_id' => $context->id,
+        ]);
+
+        $response = $this->deleteJson("/api/translations/{$translation->id}");
+
+        $response->assertStatus(204);
+
+        $this->assertDatabaseMissing('translations', [
+            'id' => $translation->id,
+        ]);
+    }
+
+    public function test_show_translation_successfully()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $locale = Locale::factory()->create();
+        $context = Context::factory()->create();
+
+        $translation = Translation::create([
+            'key' => 'test-key',
+            'content' => 'Test content',
+            'locale_id' => $locale->id,
+            'context_id' => $context->id,
+        ]);
+
+        $response = $this->getJson("/api/translations/{$translation->id}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'id' => $translation->id,
+                'key' => 'test-key',
+                'content' => 'Test content',
+                'locale_id' => $locale->id,
+                'context_id' => $context->id,
+            ]);
+    }
+
+    public function test_index_returns_paginated_translations()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $locale = Locale::factory()->create();
+        $context = Context::factory()->create();
+
+        Translation::factory()->create([
+            'key' => 'first-key',
+            'content' => 'First content',
+            'locale_id' => $locale->id,
+            'context_id' => $context->id,
+        ]);
+        Translation::factory()->create([
+            'key' => 'second-key',
+            'content' => 'Second content',
+            'locale_id' => $locale->id,
+            'context_id' => $context->id,
+        ]);
+
+        $response = $this->getJson('/api/translations');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'key',
+                        'content',
+                        'locale_id',
+                        'context_id',
+                        'created_at',
+                        'updated_at',
+                    ]
+                ],
+                'links' => [],
+            ])
+            ->assertJsonCount(2, 'data');
+    }
+
+    public function test_update_translation_successfully()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $locale = Locale::factory()->create();
+        $context = Context::factory()->create();
+
+        $translation = Translation::create([
+            'key' => 'old-key',
+            'content' => 'Old content',
+            'locale_id' => $locale->id,
+            'context_id' => $context->id,
+        ]);
+
+        $updatedData = [
+            'key' => 'updated-key',
+            'content' => 'Updated content',
+            'locale_id' => $locale->id,
+            'context_id' => $context->id,
+        ];
+
+        $response = $this->putJson("/api/translations/{$translation->id}", $updatedData);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'id' => $translation->id,
+                'key' => 'updated-key',
+                'content' => 'Updated content',
+                'locale_id' => $locale->id,
+                'context_id' => $context->id,
+            ]);
+
+        $this->assertDatabaseHas('translations', [
+            'id' => $translation->id,
+            'key' => 'updated-key',
+            'content' => 'Updated content',
+        ]);
+    }
+
+    public function test_update_translation_validation_error()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $locale = Locale::factory()->create();
+        $context = Context::factory()->create();
+
+        $translation = Translation::create([
+            'key' => 'old-key',
+            'content' => 'Old content',
+            'locale_id' => $locale->id,
+            'context_id' => $context->id,
+        ]);
+
+        $response = $this->putJson("/api/translations/{$translation->id}", [
+            'content' => 'Updated content',
+            'locale_id' => $locale->id,
+            'context_id' => $context->id,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['key']);
+    }
+
+    public function test_update_translation_key_must_be_unique()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $locale = Locale::factory()->create();
+        $context = Context::factory()->create();
+
+        $translation = Translation::create([
+            'key' => 'old-key',
+            'content' => 'Old content',
+            'locale_id' => $locale->id,
+            'context_id' => $context->id,
+        ]);
+
+        Translation::create([
+            'key' => 'duplicate-key',
+            'content' => 'Some content',
+            'locale_id' => $locale->id,
+            'context_id' => $context->id,
+        ]);
+
+        $response = $this->putJson("/api/translations/{$translation->id}", [
+            'key' => 'duplicate-key',
+            'content' => 'Updated content',
+            'locale_id' => $locale->id,
+            'context_id' => $context->id,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['key']);
+    }
+
 
 }

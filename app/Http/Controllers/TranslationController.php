@@ -229,30 +229,24 @@ class TranslationController extends Controller
      */
     public function search(Request $request)
     {
-        try {
-            $query = \App\Models\Translation::query()->with(['locale', 'context']);
+        $query = \App\Models\Translation::query()->with(['locale', 'context']);
 
-            if ($request->filled('key')) {
-                $query->where('key', 'like', '%' . $request->key . '%');
-            }
-
-            if ($request->filled('content')) {
-                $query->where('content', 'like', '%' . $request['content'] . '%');
-            }
-
-            if ($request->filled('context')) {
-                $query->whereHas('context', function ($q) use ($request) {
-                    $q->where('name', 'like', '%' . $request->context . '%');
-                });
-            }
-
-            $perPage = $request->input('per_page', 10);
-            return response()->json($query->paginate($perPage));
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'message' => 'Translation not found',
-            ], 404);
+        if ($request->filled('key')) {
+            $query->where('key', 'like', '%' . $request->key . '%');
         }
-    }
 
+        if ($request->filled('content')) {
+            $query->where('content', 'like', '%' . $request['content'] . '%');
+        }
+
+        if ($request->filled('context')) {
+            $query->whereHas('context', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->context . '%');
+            });
+        }
+
+        $perPage = $request->input('per_page', 10);
+        return response()->json($query->paginate($perPage));
+
+    }
 }
