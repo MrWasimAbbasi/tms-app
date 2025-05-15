@@ -82,3 +82,7 @@ If you want to run tests to ensure everything is working correctly:
 2. To see coverage please run following command
   ```bash
     php artisan test --coverage
+```
+
+## 7. **Screenshots**
+![SWAGGER](img.png)
